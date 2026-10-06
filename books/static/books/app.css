@@ -36,7 +36,16 @@ img { max-width: 100%; }
   box-shadow: 0 12px 30px rgba(16, 36, 58, 0.18);
 }
 .brandrow { display: flex; justify-content: space-between; gap: 16px; align-items: center; }
-.logo { height: 36px; width: auto; display: block; }
+.logo {
+  height: 40px;
+  width: auto;
+  max-width: 210px;
+  object-fit: contain;
+  display: block;
+  background: #fff;
+  border-radius: 12px;
+  padding: 4px 10px;
+}
 .pagehead { display: flex; justify-content: space-between; gap: 16px; align-items: flex-end; margin-top: 16px; }
 .eyebrow { margin: 0 0 4px; color: #c9d5c8; letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.72rem; }
 h1 { margin: 0; font-size: 1.85rem; letter-spacing: -0.03em; font-weight: 650; }

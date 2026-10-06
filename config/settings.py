@@ -1,11 +1,22 @@
 import os
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parents[1]
+from dotenv import load_dotenv
 
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "verito-tech-local-shop-key")
-DEBUG = True
-ALLOWED_HOSTS = ["*"]
+BASE_DIR = Path(__file__).resolve().parents[1]
+load_dotenv(BASE_DIR / ".env")
+
+
+def env_bool(name, default=False):
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
+DEBUG = env_bool("DJANGO_DEBUG")
+ALLOWED_HOSTS = [host.strip() for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",") if host.strip()]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -49,9 +60,9 @@ TEMPLATES = [
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("POSTGRES_DB", "verito"),
-        "USER": os.environ.get("POSTGRES_USER", "verito"),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "verito-local"),
+        "NAME": os.environ["POSTGRES_DB"],
+        "USER": os.environ["POSTGRES_USER"],
+        "PASSWORD": os.environ["POSTGRES_PASSWORD"],
         "HOST": os.environ.get("POSTGRES_HOST", "127.0.0.1"),
         "PORT": os.environ.get("POSTGRES_PORT", "5432"),
     }

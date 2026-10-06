@@ -1,17 +1,17 @@
-{% load static %}
+{% load static shop_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ title }} · Verito Tech</title>
-  <link rel="icon" href="{% static 'books/logo.svg' %}">
+  <link rel="icon" href="{% company_logo %}">
   <link rel="stylesheet" href="{% static 'books/app.css' %}">
 </head>
 <body>
   <div class="auth">
     <section class="card authcard">
-      <img class="logo" src="{% static 'books/logo.svg' %}" alt="Verito Tech">
+      <img class="logo" src="{% company_logo %}" alt="Verito Tech">
       <h1>{{ title }}</h1>
       <p class="muted">{% if mode == "setup" %}Create the owner account for this shop book.{% else %}Sign in to the shop book.{% endif %}</p>
       {% if error %}<p class="banner">{{ error }}</p>{% endif %}

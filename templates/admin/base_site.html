@@ -1,12 +1,12 @@
 {% extends "admin/base.html" %}
-{% load static %}
+{% load shop_tags %}
 
 {% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | Verito Tech{% endblock %}
 
 {% block branding %}
 <div id="site-name">
   <a href="{% url 'admin:index' %}">
-    <img src="{% static 'books/logo-light.svg' %}" alt="Verito Tech" style="height:32px;vertical-align:middle">
+    <img src="{% company_logo 'light' %}" alt="Verito Tech" style="height:32px;vertical-align:middle;background:#fff;border-radius:8px;padding:2px 8px">
   </a>
 </div>
 {% endblock %}

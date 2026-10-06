@@ -16,11 +16,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme(
                 colorScheme = lightColorScheme(
-                    primary = Color(0xFF0B6B5C),
+                    primary = Color(0xFF0E7C6B),
                     onPrimary = Color.White,
-                    background = Color(0xFFEFE7D6),
-                    surface = Color(0xFFFFFAF2),
-                    error = Color(0xFF9D3418),
+                    background = Color(0xFFF4EFE6),
+                    surface = Color(0xFFFFFDF8),
+                    error = Color(0xFFA33B24),
                 ),
             ) {
                 AppRoot(model)

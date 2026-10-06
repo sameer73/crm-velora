@@ -17,7 +17,7 @@ data class UiState(
     val user: UserDto? = null,
     val shops: List<ShopDto> = emptyList(),
     val shopId: Long = 0,
-    val serverUrl: String = "http://10.0.2.2:8000",
+    val serverUrl: String = "http://localhost:8000",
     val today: TodayDto? = null,
     val stock: List<StockRowDto> = emptyList(),
     val bills: List<BillDto> = emptyList(),
@@ -131,23 +131,27 @@ class CrmViewModel(app: Application) : AndroidViewModel(app) {
     fun createItem(name: String, unit: String, price: String) = run {
         val paise = rupeesToPaise(price) ?: error("Enter a sale price like 800 or 800.50")
         api.createItem(ItemRequest(name, unit.ifBlank { "pcs" }, paise))
-        state = state.copy(stock = api.stock(shop()))
+        val rows = api.stock(shop())
+        state = state.copy(stock = rows)
     }
 
     fun adjust(itemId: Long, delta: String, note: String) = run {
         val change = delta.trim().toIntOrNull() ?: error("Enter a whole number like -1 or 2")
         api.adjust(shop(), AdjustRequest(itemId, change, note))
-        state = state.copy(stock = api.stock(shop()))
+        val rows = api.stock(shop())
+        state = state.copy(stock = rows)
     }
 
     fun createVendor(name: String, phone: String, note: String) = run {
         api.createVendor(VendorRequest(name, phone, note))
-        state = state.copy(vendors = api.vendors())
+        val rows = api.vendors()
+        state = state.copy(vendors = rows)
     }
 
     fun createCustomer(name: String, phone: String, address: String) = run {
         api.createCustomer(shop(), CustomerRequest(name, phone, address))
-        state = state.copy(customers = api.customers(shop()))
+        val rows = api.customers(shop())
+        state = state.copy(customers = rows)
     }
 
     fun createPurchase(vendorId: Long, lines: List<ItemLineReq>, note: String, onDone: () -> Unit) = run {
@@ -180,7 +184,10 @@ class CrmViewModel(app: Application) : AndroidViewModel(app) {
         val paise = rupeesToPaise(amount) ?: error("Enter an amount like 150 or 150.50")
         api.addLedger(shop(), LedgerRequest(category, paise, method, LocalDate.now().toString(), note, billId, purchaseId))
         refreshMoney()
-        if (billId != null) state = state.copy(openBill = api.bill(shop(), billId))
+        if (billId != null) {
+            val bill = api.bill(shop(), billId)
+            state = state.copy(openBill = bill)
+        }
     }
 
     private fun openBill(id: Long) {
@@ -202,36 +209,60 @@ class CrmViewModel(app: Application) : AndroidViewModel(app) {
     private fun loadRoute(next: String) {
         viewModelScope.launch {
             try {
+                val shopId = state.shopId
                 when {
-                    next == "today" && state.shopId != 0L -> state = state.copy(today = api.today(state.shopId))
-                    next == "stock" && state.shopId != 0L -> state = state.copy(stock = api.stock(state.shopId))
-                    next == "bills" && state.shopId != 0L -> state = state.copy(bills = api.bills(state.shopId))
-                    next == "cash" && state.shopId != 0L -> state = state.copy(wallet = api.wallet(state.shopId, LocalDate.now().toString()))
-                    next == "sale" || next == "job" || next == "purchase" -> {
-                        if (state.shopId == 0L) return@launch
-                        state = state.copy(
-                            stock = api.stock(state.shopId),
-                            customers = api.customers(state.shopId),
-                            vendors = api.vendors(),
-                        )
+                    next == "today" && shopId != 0L -> {
+                        val today = api.today(shopId)
+                        state = state.copy(today = today, loading = false)
                     }
-                    next == "customers" && state.shopId != 0L -> state = state.copy(customers = api.customers(state.shopId))
-                    next == "vendors" -> state = state.copy(vendors = api.vendors())
-                    next == "cashnew" && state.shopId != 0L -> state = state.copy(today = api.today(state.shopId))
-                    next.startsWith("bill/") && state.shopId != 0L -> {
+                    next == "stock" && shopId != 0L -> {
+                        val stock = api.stock(shopId)
+                        state = state.copy(stock = stock, loading = false)
+                    }
+                    next == "bills" && shopId != 0L -> {
+                        val bills = api.bills(shopId)
+                        state = state.copy(bills = bills, loading = false)
+                    }
+                    next == "cash" && shopId != 0L -> {
+                        val wallet = api.wallet(shopId, LocalDate.now().toString())
+                        state = state.copy(wallet = wallet, loading = false)
+                    }
+                    next == "sale" || next == "job" || next == "purchase" -> {
+                        if (shopId == 0L) return@launch
+                        val stock = api.stock(shopId)
+                        val customers = api.customers(shopId)
+                        val vendors = api.vendors()
+                        state = state.copy(stock = stock, customers = customers, vendors = vendors, loading = false)
+                    }
+                    next == "customers" && shopId != 0L -> {
+                        val customers = api.customers(shopId)
+                        state = state.copy(customers = customers, loading = false)
+                    }
+                    next == "vendors" -> {
+                        val vendors = api.vendors()
+                        state = state.copy(vendors = vendors, loading = false)
+                    }
+                    next == "cashnew" && shopId != 0L -> {
+                        val today = api.today(shopId)
+                        state = state.copy(today = today, loading = false)
+                    }
+                    next.startsWith("bill/") && shopId != 0L -> {
                         val id = next.removePrefix("bill/").toLong()
-                        state = state.copy(openBill = api.bill(state.shopId, id))
+                        val bill = api.bill(shopId, id)
+                        state = state.copy(openBill = bill, loading = false)
                     }
                 }
             } catch (error: Exception) {
-                state = state.copy(error = httpMessage(error))
+                state = state.copy(error = httpMessage(error), loading = false)
             }
         }
     }
 
     private suspend fun refreshMoney() {
         val id = shop()
-        state = state.copy(today = api.today(id), wallet = api.wallet(id, LocalDate.now().toString()))
+        val today = api.today(id)
+        val wallet = api.wallet(id, LocalDate.now().toString())
+        state = state.copy(today = today, wallet = wallet, loading = false)
     }
 
     private suspend fun loadShops() {

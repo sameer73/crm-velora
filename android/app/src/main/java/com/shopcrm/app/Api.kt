@@ -26,7 +26,11 @@ class SessionStore(context: Context) {
         set(value) { prefs.edit().putLong("shopId", value).apply() }
 
     var serverUrl: String
-        get() = prefs.getString("server", "http://10.0.2.2:8000") ?: "http://10.0.2.2:8000"
+        get() {
+            val saved = prefs.getString("server", null)?.trim()?.trimEnd('/')
+            if (saved.isNullOrBlank() || saved == "http://10.0.2.2:8000") return "http://localhost:8000"
+            return saved
+        }
         set(value) { prefs.edit().putString("server", value.trim().trimEnd('/')).apply() }
 }
 
@@ -100,8 +104,9 @@ interface CrmApi {
 
 fun buildApi(store: SessionStore): CrmApi {
     val client = OkHttpClient.Builder()
-        .connectTimeout(15, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
+        .connectTimeout(8, TimeUnit.SECONDS)
+        .readTimeout(20, TimeUnit.SECONDS)
+        .callTimeout(20, TimeUnit.SECONDS)
         .addInterceptor { chain ->
             val token = store.token
             val request = if (token.isNullOrBlank()) {
