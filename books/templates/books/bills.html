@@ -1,0 +1,28 @@
+{% extends "books/base.html" %}
+{% load shop_tags %}
+{% block body %}
+<div class="chips">
+  <a href="{% url 'bills' %}" class="{% if not kind %}on{% endif %}">All</a>
+  <a href="{% url 'bills' %}?kind=counter" class="{% if kind == 'counter' %}on{% endif %}">Counter</a>
+  <a href="{% url 'bills' %}?kind=job" class="{% if kind == 'job' %}on{% endif %}">Installations</a>
+</div>
+<div class="actions">
+  <a class="action" href="{% url 'sale-new' %}">Counter sale</a>
+  <a class="action" href="{% url 'job-new' %}">Installation</a>
+</div>
+{% for bill in bills %}
+<a class="row" href="{% url 'bill' bill.id %}">
+  <span>
+    <strong>{{ bill.customer.name|default:"Walk-in" }}</strong>
+    <span class="muted">{{ bill.number|billno }} · {{ bill.kind|kind }} · {{ bill.date|pretty }}</span>
+  </span>
+  {% if bill.balance_sum > 0 %}
+  <span><strong>Due {{ bill.balance_sum|inr }}</strong><span class="muted">of {{ bill.total_paise|inr }}</span></span>
+  {% else %}
+  <strong class="in">Paid</strong>
+  {% endif %}
+</a>
+{% empty %}
+<p class="empty">No bills yet.</p>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block body %}
+{% if not shop %}
+<p class="card">Create a shop before tracking stock. <a href="/">Today</a></p>
+{% endif %}
+<form method="get" class="card">
+  <label><span>Search items</span><input name="q" value="{{ q }}" placeholder="Filter, membrane, tap"></label>
+  <button class="btn ghost" type="submit">Search</button>
+</form>
+<p><a class="btn" href="/inventory/new">Add item</a></p>
+{% for item, qty in rows %}
+<a class="row" href="/inventory/{{ item.id }}">
+  <span><strong>{{ item.name }}</strong><span class="muted">{{ item.sale_price_paise|inr }} / {{ item.unit }}</span></span>
+  <strong>{{ qty }} {{ item.unit }}</strong>
+</a>
+{% else %}
+<p class="empty">No items yet.</p>
+{% endfor %}
+{% endblock %}

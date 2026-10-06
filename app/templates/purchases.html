@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block body %}
+<p><a class="btn" href="/purchases/new">Receive stock</a></p>
+{% for purchase in purchases %}
+<a class="row" href="/purchases/{{ purchase.id }}">
+  <span>
+    <strong>{{ purchase.vendor_name }}</strong>
+    <span class="muted">{{ purchase.date|pretty }} · {{ purchase.total_paise|inr }}</span>
+  </span>
+  <strong>{% if purchase.balance_paise %}{{ purchase.balance_paise|inr }} due{% else %}Paid{% endif %}</strong>
+</a>
+{% else %}
+<p class="empty">No stock receipts yet.</p>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "books/base.html" %}
+{% block body %}
+{% if not shop %}
+<p class="card">Create a shop first. <a href="{% url 'today' %}">Today</a></p>
+{% elif kind == "job" and not customers %}
+<p class="card">Add the customer before the installation. <a href="{% url 'customers' %}">Customers</a></p>
+{% elif kind == "counter" and not items %}
+<p class="card">Add items before billing. <a href="{% url 'item-new' %}">Add item</a></p>
+{% else %}
+<form method="post" class="card">
+  {% csrf_token %}
+  <input type="hidden" name="shop_id" value="{{ shop.id }}">
+  <label><span>Customer</span>
+    <select name="customer_id" {% if kind == "job" %}required{% endif %}>
+      <option value="">{% if kind == "job" %}Choose{% else %}Walk-in{% endif %}</option>
+      {% for customer in customers %}
+      <option value="{{ customer.id }}">{{ customer.name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  {% if kind == "job" %}
+  <label><span>Site note</span><input name="site_note" placeholder="Kitchen, 2nd floor"></label>
+  {% endif %}
+  <label><span>Date</span><input type="date" name="date" value="{{ today|date:'Y-m-d' }}" required></label>
+  <h2>Parts</h2>
+  <div class="lines" id="item-lines">{% include "books/partials/item_line.html" %}</div>
+  <p><button type="button" class="ghost" data-add="#item-line" data-target="#item-lines">Add another item</button></p>
+  {% if kind == "job" %}
+  <h2>Labour / service</h2>
+  <div class="lines" id="service-lines">
+    <div class="line">
+      <input name="service_desc" placeholder="Installation" aria-label="Service">
+      <input name="service_amount" inputmode="decimal" placeholder="Amount" aria-label="Service amount">
+    </div>
+  </div>
+  {% endif %}
+  <label><span>Paid now (₹)</span><input name="paid_now" inputmode="decimal" placeholder="Leave blank if they will pay later"></label>
+  <p class="muted">A part payment is fine. The unpaid part shows on Today under Customers still to pay, and on this bill.</p>
+  <label><span>How</span>
+    <select name="method"><option value="cash">Cash</option><option value="upi">UPI</option><option value="other">Other</option></select>
+  </label>
+  <label><span>Note</span><input name="note"></label>
+  <button class="btn" type="submit">{% if kind == "job" %}Save job{% else %}Save sale{% endif %}</button>
+</form>
+<template id="item-line">{% include "books/partials/item_line.html" %}</template>
+{% endif %}
+{% endblock %}

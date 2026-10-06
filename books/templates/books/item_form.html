@@ -1,0 +1,12 @@
+{% extends "books/base.html" %}
+{% block body %}
+<form method="post" class="card">
+  {% csrf_token %}
+  <label><span>Name</span><input name="name" required value="{{ form.name }}"></label>
+  <label><span>Unit</span><input name="unit" value="{% if form.unit %}{{ form.unit }}{% else %}pcs{% endif %}"></label>
+  <label><span>Sale price (₹)</span><input name="sale_price" inputmode="decimal" required value="{{ form.sale_price }}" placeholder="800"></label>
+  <label class="check"><input type="checkbox" name="generate_code"> Generate QR code</label>
+  <p class="muted">Leave this off if you do not need a label. You can generate one later from the item page.</p>
+  <button class="btn" type="submit">Add item</button>
+</form>
+{% endblock %}

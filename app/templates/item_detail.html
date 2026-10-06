@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block body %}
+<section class="balance">
+  <p class="muted">In this shop</p>
+  <p class="big">{{ quantity }} {{ item.unit }}</p>
+  <p class="muted">Last cost {{ item.last_cost_paise|inr if item.last_cost_paise is not none else "—" }}</p>
+</section>
+<form method="post" class="card">
+  <h2>Sale price</h2>
+  <label><span>Name</span><input name="name" required value="{{ item.name }}"></label>
+  <label><span>Unit</span><input name="unit" value="{{ item.unit }}"></label>
+  <label><span>Sale price (₹)</span><input name="sale_price" inputmode="decimal" required value="{{ item.sale_price_paise|input_paise }}"></label>
+  <button class="btn" type="submit">Save item</button>
+</form>
+{% if shop %}
+<form method="post" action="/inventory/{{ item.id }}/adjust" class="card">
+  <h2>Correct stock</h2>
+  <input type="hidden" name="shop_id" value="{{ shop.id }}">
+  <label><span>Quantity change</span><input name="quantity_delta" inputmode="numeric" required placeholder="-1 or 2"></label>
+  <label><span>Note</span><input name="note" required placeholder="Broken piece, count correction"></label>
+  <button class="btn" type="submit">Save adjustment</button>
+</form>
+{% endif %}
+{% endblock %}

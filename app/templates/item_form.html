@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block body %}
+<form method="post" class="card">
+  <label><span>Name</span><input name="name" required value="{{ form.name if form else '' }}"></label>
+  <label><span>Unit</span><input name="unit" value="{{ form.unit if form and form.unit else 'pcs' }}"></label>
+  <label><span>Sale price (₹)</span><input name="sale_price" inputmode="decimal" required value="{{ form.sale_price if form else '' }}" placeholder="800"></label>
+  <button class="btn" type="submit">Add item</button>
+</form>
+{% endblock %}

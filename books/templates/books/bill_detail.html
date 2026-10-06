@@ -1,0 +1,51 @@
+{% extends "books/base.html" %}
+{% load shop_tags %}
+{% block body %}
+<section class="balance">
+  <p class="muted">{{ bill.number|billno }} · {{ bill.kind|kind }} · {{ bill.date|pretty }}</p>
+  <p class="muted">{% if bill.balance_sum > 0 %}Still to pay{% else %}Paid in full{% endif %}</p>
+  <p class="big">{{ bill.balance_sum|inr }}</p>
+  <p class="muted">{{ bill.customer.name|default:"Walk-in" }}{% if bill.site_note %} · {{ bill.site_note }}{% endif %}</p>
+  <p class="muted">Bill total {{ bill.total_paise|inr }} · received {{ bill.paid_sum|inr }}</p>
+</section>
+{% for line in bill.line_rows %}
+<div class="row">
+  <span>
+    <strong>{{ line.description }}</strong>
+    <span class="muted">{% if line.is_service %}Service{% else %}{{ line.quantity }} × {{ line.unit_price_paise|inr }}{% endif %}</span>
+  </span>
+  <strong>{{ line.line_total_paise|inr }}</strong>
+</div>
+{% endfor %}
+{% if bill.receipts %}
+<h2>Payments received</h2>
+{% for payment in bill.receipts %}
+<div class="row">
+  <span>
+    <strong>{{ payment.amount_paise|inr }}</strong>
+    <span class="muted">{{ payment.date|pretty }} · {{ payment.method }}{% if payment.note %} · {{ payment.note }}{% endif %}</span>
+  </span>
+  <form method="post" action="{% url 'bill-unpay' bill.id payment.id %}">
+    {% csrf_token %}
+    <input type="hidden" name="shop_id" value="{{ shop.id }}">
+    <button class="ghost" type="submit">Remove</button>
+  </form>
+</div>
+{% endfor %}
+{% endif %}
+{% if bill.balance_sum > 0 %}
+<form method="post" action="{% url 'bill-pay' bill.id %}" class="card">
+  {% csrf_token %}
+  <h2>Record money received</h2>
+  <p class="muted">Enter only the cash or UPI the customer gave you now. Anything left stays on Today under Customers still to pay.</p>
+  <input type="hidden" name="shop_id" value="{{ shop.id }}">
+  <label><span>Amount (₹)</span><input name="amount" inputmode="decimal" required value="{{ bill.balance_sum|input_paise }}"></label>
+  <label><span>How</span>
+    <select name="method"><option value="cash">Cash</option><option value="upi">UPI</option><option value="other">Other</option></select>
+  </label>
+  <label><span>Date</span><input type="date" name="date" value="{{ today|date:'Y-m-d' }}" required></label>
+  <label><span>Note</span><input name="note"></label>
+  <button class="btn" type="submit">Save payment</button>
+</form>
+{% endif %}
+{% endblock %}

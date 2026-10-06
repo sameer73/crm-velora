@@ -1,0 +1,66 @@
+{% extends "books/base.html" %}
+{% load shop_tags %}
+{% block body %}
+{% if not shop %}
+<p class="card">Create a shop first.</p>
+{% else %}
+<div class="chips">
+  <a href="{% url 'wallet-new' %}?kind=customer_receipt" class="{% if kind == 'customer_receipt' %}on{% endif %}">From customer</a>
+  <a href="{% url 'wallet-new' %}?kind=vendor_payout" class="{% if kind == 'vendor_payout' %}on{% endif %}">To vendor</a>
+  <a href="{% url 'wallet-new' %}?kind=expense" class="{% if kind == 'expense' %}on{% endif %}">Expense</a>
+  <a href="{% url 'wallet-new' %}?kind=opening" class="{% if kind == 'opening' %}on{% endif %}">Cash in hand</a>
+</div>
+<form method="post" class="card">
+  {% csrf_token %}
+  <input type="hidden" name="shop_id" value="{{ shop.id }}">
+  <input type="hidden" name="category" value="{{ kind }}">
+  {% if kind == "customer_receipt" %}
+    {% if bills_due %}
+    <label><span>Bill</span>
+      <select name="bill_id" required>
+        {% for bill in bills_due %}
+        <option value="{{ bill.id }}" {% if bill_id == bill.id %}selected{% endif %}>{{ bill.title }} · {{ bill.balance_paise|inr }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    {% else %}
+    <p>No unpaid bills.</p>
+    {% endif %}
+  {% elif kind == "vendor_payout" %}
+    {% if purchases_due %}
+    <label><span>Stock receipt</span>
+      <select name="purchase_id" required>
+        {% for purchase in purchases_due %}
+        <option value="{{ purchase.id }}" {% if purchase_id == purchase.id %}selected{% endif %}>{{ purchase.title }} · due {{ purchase.balance_paise|inr }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <p class="muted">This payment closes that stock receipt.</p>
+    {% elif vendors %}
+    <label><span>Vendor</span>
+      <select name="vendor_id" required>
+        <option value="">Choose</option>
+        {% for vendor in vendors %}
+        <option value="{{ vendor.id }}">{{ vendor.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <p class="muted">No stock receipt is waiting for payment, so this amount goes straight out of the drawer to the vendor.</p>
+    {% else %}
+    <p>Add the vendor first. <a href="{% url 'vendors' %}">Vendors</a></p>
+    {% endif %}
+  {% endif %}
+  {% if kind == "vendor_payout" and not purchases_due and not vendors %}
+  {% elif kind == "customer_receipt" and not bills_due %}
+  {% else %}
+  <label><span>Amount (₹)</span><input name="amount" inputmode="decimal" required value="{{ amount }}"></label>
+  <label><span>How</span>
+    <select name="method"><option value="cash">Cash</option><option value="upi">UPI</option><option value="other">Other</option></select>
+  </label>
+  <label><span>Date</span><input type="date" name="date" value="{{ today|date:'Y-m-d' }}" required></label>
+  <label><span>Note</span><input name="note" placeholder="{% if kind == 'expense' %}Petrol, rent, tea{% else %}Optional{% endif %}"></label>
+  <button class="btn" type="submit">Save cash entry</button>
+  {% endif %}
+</form>
+{% endif %}
+{% endblock %}

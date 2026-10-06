@@ -1,0 +1,21 @@
+{% extends "books/base.html" %}
+{% load shop_tags %}
+{% block body %}
+<form method="get" class="card">
+  <label><span>Search</span><input name="q" value="{{ q }}" placeholder="Filter name"></label>
+</form>
+<p><a class="btn" href="{% url 'item-new' %}">Add item</a></p>
+{% for item, quantity in rows %}
+<a class="row" href="{% url 'item' item.id %}">
+  <span class="identity">
+    {% if item.qr_image %}<img class="thumb" src="{{ item.qr_image.url }}" alt="{{ item.code }}">{% endif %}
+    <span>
+      <strong>{{ item.name }}</strong>
+      <span class="muted">{% if shop %}{{ quantity }} {{ item.unit }} · {% endif %}{{ item.sale_price_paise|inr }}{% if item.code %} · {{ item.code }}{% endif %}</span>
+    </span>
+  </span>
+</a>
+{% empty %}
+<p class="empty">No items yet.</p>
+{% endfor %}
+{% endblock %}

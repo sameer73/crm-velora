@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }} · Verito Tech</title>
+  <link rel="icon" href="{% static 'books/logo.svg' %}">
+  <link rel="stylesheet" href="{% static 'books/app.css' %}">
+</head>
+<body>
+  <div class="auth">
+    <section class="card authcard">
+      <img class="logo" src="{% static 'books/logo.svg' %}" alt="Verito Tech">
+      <h1>{{ title }}</h1>
+      <p class="muted">{% if mode == "setup" %}Create the owner account for this shop book.{% else %}Sign in to the shop book.{% endif %}</p>
+      {% if error %}<p class="banner">{{ error }}</p>{% endif %}
+      <form method="post">
+        {% csrf_token %}
+        {% if mode == "setup" %}
+        <label><span>Your name</span><input name="name" required></label>
+        {% endif %}
+        <label><span>Username</span><input name="username" required autocapitalize="none" autocomplete="username"></label>
+        <label><span>Password</span><input name="password" type="password" required minlength="6" autocomplete="{% if mode == 'setup' %}new-password{% else %}current-password{% endif %}"></label>
+        <button class="btn" type="submit">{% if mode == "setup" %}Create account{% else %}Log in{% endif %}</button>
+      </form>
+    </section>
+  </div>
+</body>
+</html>

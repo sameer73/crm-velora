@@ -1,0 +1,13 @@
+{% extends "books/base.html" %}
+{% load shop_tags %}
+{% block body %}
+<p><a class="btn" href="{% url 'purchase-new' %}">Receive stock</a></p>
+{% for purchase in purchases %}
+<a class="row" href="{% url 'purchase' purchase.id %}">
+  <span><strong>{{ purchase.vendor.name }}</strong><span class="muted">{{ purchase.date|pretty }} · due {{ purchase.balance_sum|inr }}</span></span>
+  <strong>{{ purchase.total_paise|inr }}</strong>
+</a>
+{% empty %}
+<p class="empty">No stock receipts yet.</p>
+{% endfor %}
+{% endblock %}

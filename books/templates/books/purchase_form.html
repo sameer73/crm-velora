@@ -1,0 +1,30 @@
+{% extends "books/base.html" %}
+{% block body %}
+{% if not shop %}
+<p class="card">Create a shop first.</p>
+{% elif not vendors %}
+<p class="card">Add a vendor first. <a href="{% url 'vendors' %}">Vendors</a></p>
+{% elif not items %}
+<p class="card">Add items first. <a href="{% url 'item-new' %}">Add item</a></p>
+{% else %}
+<form method="post" class="card">
+  {% csrf_token %}
+  <input type="hidden" name="shop_id" value="{{ shop.id }}">
+  <label><span>Vendor</span>
+    <select name="vendor_id" required>
+      <option value="">Choose</option>
+      {% for vendor in vendors %}
+      <option value="{{ vendor.id }}">{{ vendor.name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label><span>Date</span><input type="date" name="date" value="{{ today|date:'Y-m-d' }}" required></label>
+  <h2>Items</h2>
+  <div class="lines" id="item-lines">{% include "books/partials/item_line.html" %}</div>
+  <p><button type="button" class="ghost" data-add="#item-line" data-target="#item-lines">Add another item</button></p>
+  <label><span>Note</span><input name="note"></label>
+  <button class="btn" type="submit">Save stock in</button>
+</form>
+<template id="item-line">{% include "books/partials/item_line.html" %}</template>
+{% endif %}
+{% endblock %}

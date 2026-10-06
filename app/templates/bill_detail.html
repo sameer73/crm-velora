@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block body %}
+<section class="card">
+  <p class="muted">{{ bill.number|billno }} · {{ bill.kind|kind }} · {{ bill.date|pretty }}</p>
+  <h2>{{ bill.customer_name or "Walk-in" }}</h2>
+  {% if bill.site_note %}<p>{{ bill.site_note }}</p>{% endif %}
+  <p class="big">{{ bill.total_paise|inr }}</p>
+  <p>Paid {{ bill.paid_paise|inr }} · balance <strong>{{ bill.balance_paise|inr }}</strong></p>
+  {% for line in bill.lines %}
+  <div class="row">
+    <span>
+      <strong>{{ line.description }}</strong>
+      <span class="muted">{% if line.is_service %}Service{% else %}{{ line.quantity }} × {{ line.unit_price_paise|inr }}{% endif %}</span>
+    </span>
+    <strong>{{ line.line_total_paise|inr }}</strong>
+  </div>
+  {% endfor %}
+</section>
+{% if shop and bill.balance_paise > 0 %}
+<form method="post" action="/bills/{{ bill.id }}/pay" class="card">
+  <h2>Customer payment</h2>
+  <input type="hidden" name="shop_id" value="{{ shop.id }}">
+  <label><span>Amount (₹)</span><input name="amount" inputmode="decimal" required value="{{ bill.balance_paise|input_paise }}"></label>
+  <label><span>How</span>
+    <select name="method"><option value="cash">Cash</option><option value="upi">UPI</option><option value="other">Other</option></select>
+  </label>
+  <label><span>Date</span><input type="date" name="date" value="{{ today }}"></label>
+  <label><span>Note</span><input name="note"></label>
+  <button class="btn" type="submit">Record payment</button>
+</form>
+{% endif %}
+{% endblock %}

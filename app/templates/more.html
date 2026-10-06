@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="links">
+  <a class="action" href="/sales/new">Counter sale</a>
+  <a class="action" href="/jobs/new">Installation</a>
+  <a class="action" href="/purchases/new">Stock in</a>
+  <a class="action" href="/customers">Customers</a>
+  <a class="action" href="/vendors">Vendors</a>
+  <a class="action" href="/purchases">Stock receipts</a>
+  {% if user.role == "owner" %}
+  <a class="action" href="/settings">Shops and staff</a>
+  {% endif %}
+</div>
+<section class="card">
+  <h2>Phone app</h2>
+  <p>In the Android app, set the server to</p>
+  <p><strong>{{ server_hint }}</strong></p>
+  <p class="muted">The phone and this computer need to be on the same Wi-Fi. There is no payment gateway. Cash and UPI are only written in the book.</p>
+</section>
+<form method="post" action="/logout">
+  <button class="btn ghost" type="submit">Log out</button>
+</form>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="chips">
+  <a href="/bills" class="{% if not kind %}on{% endif %}">All</a>
+  <a href="/bills?kind=counter" class="{% if kind == 'counter' %}on{% endif %}">Counter</a>
+  <a href="/bills?kind=job" class="{% if kind == 'job' %}on{% endif %}">Jobs</a>
+</div>
+<div class="actions">
+  <a class="action" href="/sales/new">Counter sale</a>
+  <a class="action" href="/jobs/new">Installation</a>
+</div>
+{% for bill in bills %}
+<a class="row" href="/bills/{{ bill.id }}">
+  <span>
+    <strong>{{ bill.customer_name or "Walk-in" }}</strong>
+    <span class="muted">{{ bill.number|billno }} · {{ bill.kind|kind }} · {{ bill.date|pretty }}</span>
+  </span>
+  <strong>{% if bill.balance_paise %}{{ bill.balance_paise|inr }} due{% else %}Paid{% endif %}</strong>
+</a>
+{% else %}
+<p class="empty">No bills yet.</p>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block body %}
+<section class="card">
+  <p class="muted">{{ purchase.vendor_name }} · {{ purchase.date|pretty }}</p>
+  <p class="big">{{ purchase.total_paise|inr }}</p>
+  <p>Paid {{ purchase.paid_paise|inr }} · still owed <strong>{{ purchase.balance_paise|inr }}</strong></p>
+  {% if purchase.note %}<p class="muted">{{ purchase.note }}</p>{% endif %}
+  {% for line in purchase.lines %}
+  <div class="row">
+    <span><strong>{{ line.name }}</strong><span class="muted">{{ line.quantity }} × {{ line.unit_cost_paise|inr }}</span></span>
+    <strong>{{ line.line_total_paise|inr }}</strong>
+  </div>
+  {% endfor %}
+</section>
+{% if shop and purchase.balance_paise > 0 %}
+<form method="post" action="/purchases/{{ purchase.id }}/pay" class="card">
+  <h2>Pay vendor</h2>
+  <input type="hidden" name="shop_id" value="{{ shop.id }}">
+  <label><span>Amount (₹)</span><input name="amount" inputmode="decimal" required value="{{ purchase.balance_paise|input_paise }}"></label>
+  <label><span>How</span>
+    <select name="method"><option value="cash">Cash</option><option value="upi">UPI</option><option value="other">Other</option></select>
+  </label>
+  <label><span>Date</span><input type="date" name="date" value="{{ today }}"></label>
+  <label><span>Note</span><input name="note" placeholder="Paid from today's collection"></label>
+  <button class="btn" type="submit">Record payment</button>
+</form>
+{% endif %}
+{% endblock %}

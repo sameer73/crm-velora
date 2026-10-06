@@ -1,0 +1,21 @@
+{% extends "books/base.html" %}
+{% block body %}
+<div class="links">
+  <a class="action" href="{% url 'sale-new' %}">Counter sale</a>
+  <a class="action" href="{% url 'job-new' %}">Installation</a>
+  <a class="action" href="{% url 'purchase-new' %}">Stock in</a>
+  <a class="action" href="{% url 'customers' %}">Customers</a>
+  <a class="action" href="{% url 'vendors' %}">Vendors</a>
+  <a class="action" href="{% url 'purchases' %}">Stock receipts</a>
+  {% if user.profile.role == "owner" %}
+  <a class="action" href="{% url 'settings' %}">Shops and staff</a>
+  <a class="action" href="/admin/">Admin panel</a>
+  {% endif %}
+</div>
+<section class="card">
+  <h2>Phone app</h2>
+  <p>In the Android app, set the server to</p>
+  <p><strong>{{ server_hint }}</strong></p>
+  <p class="muted">The phone and this computer need to be on the same Wi-Fi. Cash and UPI are only labels in the book.</p>
+</section>
+{% endblock %}

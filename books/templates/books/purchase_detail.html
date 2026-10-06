@@ -1,0 +1,29 @@
+{% extends "books/base.html" %}
+{% load shop_tags %}
+{% block body %}
+<section class="balance">
+  <p class="muted">{{ purchase.vendor.name }} · {{ purchase.date|pretty }}</p>
+  <p class="big">{{ purchase.balance_sum|inr }}</p>
+  <p class="muted">Total {{ purchase.total_paise|inr }} · paid {{ purchase.paid_sum|inr }}</p>
+</section>
+{% for line in purchase.line_rows %}
+<div class="row">
+  <span><strong>{{ line.item.name }}</strong><span class="muted">{{ line.quantity }} × {{ line.unit_cost_paise|inr }}</span></span>
+  <strong>{{ line.line_total_paise|inr }}</strong>
+</div>
+{% endfor %}
+{% if purchase.balance_sum > 0 %}
+<form method="post" action="{% url 'purchase-pay' purchase.id %}" class="card">
+  {% csrf_token %}
+  <h2>Pay vendor</h2>
+  <input type="hidden" name="shop_id" value="{{ shop.id }}">
+  <label><span>Amount (₹)</span><input name="amount" inputmode="decimal" required value="{{ purchase.balance_sum|input_paise }}"></label>
+  <label><span>How</span>
+    <select name="method"><option value="cash">Cash</option><option value="upi">UPI</option><option value="other">Other</option></select>
+  </label>
+  <label><span>Date</span><input type="date" name="date" value="{{ today|date:'Y-m-d' }}" required></label>
+  <label><span>Note</span><input name="note"></label>
+  <button class="btn" type="submit">Save payment</button>
+</form>
+{% endif %}
+{% endblock %}

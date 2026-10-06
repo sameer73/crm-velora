@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block body %}
+{% if not shop %}
+<p class="card">Create a shop first. <a href="/">Today</a></p>
+{% elif not vendors %}
+<p class="card">Add a vendor before receiving stock. <a href="/vendors">Vendors</a></p>
+{% elif not items %}
+<p class="card">Add an item before receiving stock. <a href="/inventory/new">Add item</a></p>
+{% else %}
+<form method="post" class="card">
+  <input type="hidden" name="shop_id" value="{{ shop.id }}">
+  <label><span>Vendor</span>
+    <select name="vendor_id" required>
+      <option value="">Choose</option>
+      {% for vendor in vendors %}<option value="{{ vendor.id }}">{{ vendor.name }}</option>{% endfor %}
+    </select>
+  </label>
+  <label><span>Date</span><input type="date" name="date" value="{{ today }}" required></label>
+  <label><span>Note</span><input name="note"></label>
+  <div class="lines" id="item-lines">{% include "partials/item_line.html" %}</div>
+  <p><button type="button" class="ghost" data-add="#item-line" data-target="#item-lines">Add another item</button></p>
+  <button class="btn" type="submit">Save stock in</button>
+</form>
+<template id="item-line">{% include "partials/item_line.html" %}</template>
+{% endif %}
+{% endblock %}

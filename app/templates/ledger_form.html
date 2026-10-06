@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block body %}
+{% if not shop %}
+<p class="card">Create a shop first.</p>
+{% else %}
+<div class="chips">
+  <a href="/wallet/new?kind=customer_receipt" class="{% if kind == 'customer_receipt' %}on{% endif %}">From customer</a>
+  <a href="/wallet/new?kind=vendor_payout" class="{% if kind == 'vendor_payout' %}on{% endif %}">To vendor</a>
+  <a href="/wallet/new?kind=expense" class="{% if kind == 'expense' %}on{% endif %}">Expense</a>
+  <a href="/wallet/new?kind=opening" class="{% if kind == 'opening' %}on{% endif %}">Cash in hand</a>
+</div>
+<form method="post" class="card">
+  <input type="hidden" name="shop_id" value="{{ shop.id }}">
+  <input type="hidden" name="category" value="{{ kind }}">
+  {% if kind == "customer_receipt" %}
+    {% if bills_due %}
+    <label><span>Bill</span>
+      <select name="bill_id" required>
+        {% for bill in bills_due %}
+        <option value="{{ bill.id }}" {% if bill_id == bill.id %}selected{% endif %}>{{ bill.title }} · {{ bill.balance_paise|inr }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    {% else %}
+    <p>No unpaid bills.</p>
+    {% endif %}
+  {% elif kind == "vendor_payout" %}
+    {% if purchases_due %}
+    <label><span>Purchase</span>
+      <select name="purchase_id" required>
+        {% for purchase in purchases_due %}
+        <option value="{{ purchase.id }}" {% if purchase_id == purchase.id %}selected{% endif %}>{{ purchase.title }} · {{ purchase.balance_paise|inr }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    {% else %}
+    <p>No unpaid vendor bills.</p>
+    {% endif %}
+  {% endif %}
+  <label><span>Amount (₹)</span><input name="amount" inputmode="decimal" required value="{{ amount }}"></label>
+  <label><span>How</span>
+    <select name="method"><option value="cash">Cash</option><option value="upi">UPI</option><option value="other">Other</option></select>
+  </label>
+  <label><span>Date</span><input type="date" name="date" value="{{ today }}" required></label>
+  <label><span>Note</span><input name="note" placeholder="{% if kind == 'expense' %}Petrol, rent, tea{% else %}Optional{% endif %}"></label>
+  <button class="btn" type="submit">Save cash entry</button>
+</form>
+{% endif %}
+{% endblock %}

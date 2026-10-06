@@ -1,0 +1,14 @@
+<div class="line">
+  <select name="item_id" aria-label="Item">
+    <option value="">Item</option>
+    {% for item in items %}
+    {% set price = item.last_cost_paise if cost_mode else item.sale_price_paise %}
+    <option value="{{ item.id }}" {% if price is not none %}data-price="{{ price|input_paise }}"{% endif %}>
+      {{ item.name }} · {{ stock.get(item.id, 0) }} {{ item.unit }}
+    </option>
+    {% endfor %}
+  </select>
+  <input name="qty" inputmode="numeric" placeholder="Qty" aria-label="Quantity">
+  <input data-money name="unit_price" inputmode="decimal" placeholder="{{ price_label }}" aria-label="{{ price_label }}">
+  <button type="button" class="ghost remove-line">Remove</button>
+</div>

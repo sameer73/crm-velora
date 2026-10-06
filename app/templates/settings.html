@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block body %}
+<form method="post" action="/settings/shops" class="card">
+  <h2>New shop</h2>
+  <label><span>Name</span><input name="name" required></label>
+  <label><span>Address</span><input name="address"></label>
+  <label><span>Phone</span><input name="phone"></label>
+  <button class="btn" type="submit">Save shop</button>
+</form>
+<h2>Shops</h2>
+{% for s in shops %}
+<div class="row"><strong>{{ s.name }}</strong><span class="muted">{{ s.phone }}</span></div>
+{% endfor %}
+{% if shops %}
+<form method="post" action="/settings/users" class="card">
+  <h2>Staff</h2>
+  <label><span>Name</span><input name="name" required></label>
+  <label><span>Username</span><input name="username" required autocapitalize="none"></label>
+  <label><span>Password</span><input name="password" type="password" required minlength="6"></label>
+  <p class="label">Shops they can use</p>
+  {% for s in shops %}
+  <label class="check"><input type="checkbox" name="shop_ids" value="{{ s.id }}"> {{ s.name }}</label>
+  {% endfor %}
+  <button class="btn" type="submit">Add staff</button>
+</form>
+{% endif %}
+<h2>People</h2>
+{% for row in people %}
+<div class="row">
+  <span><strong>{{ row.user.name }}</strong><span class="muted">{{ row.user.username }} · {{ row.user.role }}</span></span>
+</div>
+{% endfor %}
+{% endblock %}

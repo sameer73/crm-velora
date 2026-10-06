@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block body %}
+{% if not shop %}
+<p class="card">Create a shop first. <a href="/">Today</a></p>
+{% elif kind == "job" and not customers %}
+<p class="card">Add the customer before the installation. <a href="/customers">Customers</a></p>
+{% elif not items %}
+<p class="card">Add items before billing. <a href="/inventory/new">Add item</a></p>
+{% else %}
+<form method="post" class="card">
+  <input type="hidden" name="shop_id" value="{{ shop.id }}">
+  <label><span>Customer</span>
+    <select name="customer_id" {% if kind == "job" %}required{% endif %}>
+      <option value="">{% if kind == "job" %}Choose{% else %}Walk-in{% endif %}</option>
+      {% for customer in customers %}
+      <option value="{{ customer.id }}">{{ customer.name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  {% if kind == "job" %}
+  <label><span>Site note</span><input name="site_note" placeholder="Kitchen, 2nd floor"></label>
+  {% endif %}
+  <label><span>Date</span><input type="date" name="date" value="{{ today }}" required></label>
+  <h2>Parts</h2>
+  <div class="lines" id="item-lines">{% include "partials/item_line.html" %}</div>
+  <p><button type="button" class="ghost" data-add="#item-line" data-target="#item-lines">Add another item</button></p>
+  {% if kind == "job" %}
+  <h2>Labour / service</h2>
+  <div class="lines" id="service-lines">
+    <div class="line">
+      <input name="service_desc" placeholder="Installation" aria-label="Service">
+      <input name="service_amount" inputmode="decimal" placeholder="Amount" aria-label="Service amount">
+    </div>
+  </div>
+  {% endif %}
+  <label><span>Paid now (₹)</span><input name="paid_now" inputmode="decimal" placeholder="0 if unpaid"></label>
+  <label><span>How</span>
+    <select name="method"><option value="cash">Cash</option><option value="upi">UPI</option><option value="other">Other</option></select>
+  </label>
+  <label><span>Note</span><input name="note"></label>
+  <button class="btn" type="submit">{% if kind == "job" %}Save job{% else %}Save sale{% endif %}</button>
+</form>
+<template id="item-line">{% include "partials/item_line.html" %}</template>
+{% endif %}
+{% endblock %}

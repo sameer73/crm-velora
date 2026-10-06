@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block body %}
+{% if not shop %}
+  <section class="card">
+    {% if user.role == "owner" %}
+    <h2>Create your first shop</h2>
+    <p class="muted">Each shop keeps its own stock and cash.</p>
+    <form method="post" action="/settings/shops">
+      <label><span>Shop name</span><input name="name" required></label>
+      <label><span>Address</span><input name="address"></label>
+      <label><span>Phone</span><input name="phone"></label>
+      <button class="btn" type="submit">Save shop</button>
+    </form>
+    {% else %}
+    <p>Ask the owner to assign you to a shop.</p>
+    {% endif %}
+  </section>
+{% else %}
+  <section class="balance">
+    <p class="muted">Cash in hand</p>
+    <p class="big">{{ summary.closing_paise|inr }}</p>
+    <div class="split">
+      <span class="in">In {{ summary.in_paise|inr }}</span>
+      <span class="out">Out {{ summary.out_paise|inr }}</span>
+    </div>
+    <p class="muted">Opened today at {{ summary.opening_paise|inr }}</p>
+  </section>
+  {% if not summary.has_opening %}
+  <p class="card">Set the cash already in the drawer so today’s balance matches the shop. <a href="/wallet/new?kind=opening">Add starting cash</a></p>
+  {% endif %}
+  <div class="actions">
+    <a class="action" href="/sales/new">Counter sale</a>
+    <a class="action" href="/jobs/new">Installation</a>
+    <a class="action" href="/purchases/new">Stock in</a>
+    <a class="action" href="/wallet/new">Money in / out</a>
+  </div>
+  <h2>Customers still to pay</h2>
+  {% for bill in summary.unpaid_bills %}
+  <a class="row" href="/bills/{{ bill.id }}">
+    <span><strong>{{ bill.title }}</strong><span class="muted">{{ bill.subtitle }}</span></span>
+    <strong>{{ bill.balance_paise|inr }}</strong>
+  </a>
+  {% else %}
+  <p class="empty">No open bills.</p>
+  {% endfor %}
+  <h2>Still to pay vendors</h2>
+  {% for purchase in summary.unpaid_purchases %}
+  <a class="row" href="/purchases/{{ purchase.id }}">
+    <span><strong>{{ purchase.title }}</strong><span class="muted">{{ purchase.subtitle }} · {{ purchase.date|pretty }}</span></span>
+    <strong>{{ purchase.balance_paise|inr }}</strong>
+  </a>
+  {% else %}
+  <p class="empty">No open vendor bills.</p>
+  {% endfor %}
+{% endif %}
+{% endblock %}

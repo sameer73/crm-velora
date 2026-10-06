@@ -1,0 +1,21 @@
+{% extends "books/base.html" %}
+{% block body %}
+<form method="get" class="card">
+  <label><span>Search</span><input name="q" value="{{ q }}" placeholder="Vendor name"></label>
+</form>
+<form method="post" class="card">
+  {% csrf_token %}
+  <h2>New vendor</h2>
+  <label><span>Name</span><input name="name" required></label>
+  <label><span>Phone</span><input name="phone"></label>
+  <label><span>Note</span><input name="note"></label>
+  <button class="btn" type="submit">Save vendor</button>
+</form>
+{% for vendor in vendors %}
+<div class="row">
+  <span><strong>{{ vendor.name }}</strong><span class="muted">{{ vendor.phone }}{% if vendor.note %} · {{ vendor.note }}{% endif %}</span></span>
+</div>
+{% empty %}
+<p class="empty">No vendors yet.</p>
+{% endfor %}
+{% endblock %}

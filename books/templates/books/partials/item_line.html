@@ -1,0 +1,19 @@
+{% load shop_tags %}
+<div class="line">
+  <select name="item_id" aria-label="Item">
+    <option value="">Item</option>
+    {% for item in items %}
+    <option value="{{ item.id }}"
+      {% if cost_mode %}
+        {% if item.last_cost_paise is not None %}data-price="{{ item.last_cost_paise|input_paise }}"{% endif %}
+      {% else %}
+        data-price="{{ item.sale_price_paise|input_paise }}"
+      {% endif %}>
+      {{ item.name }} · {{ stock|qty_of:item.id }} {{ item.unit }}
+    </option>
+    {% endfor %}
+  </select>
+  <input name="qty" inputmode="numeric" placeholder="Qty" aria-label="Quantity">
+  <input data-money name="unit_price" inputmode="decimal" placeholder="{{ price_label }}" aria-label="{{ price_label }}">
+  <button type="button" class="ghost remove-line">Remove</button>
+</div>

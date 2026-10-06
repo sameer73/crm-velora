@@ -1,0 +1,42 @@
+{% extends "books/base.html" %}
+{% load shop_tags %}
+{% block body %}
+<section class="balance">
+  <p class="muted">In this shop</p>
+  <p class="big">{{ quantity }} {{ item.unit }}</p>
+  <p class="muted">Last cost {% if item.last_cost_paise is None %}—{% else %}{{ item.last_cost_paise|inr }}{% endif %}</p>
+</section>
+{% if item.qr_image %}
+<section class="card print-label">
+  <div class="qrbox">
+    <img src="{{ item.qr_image.url }}" alt="QR {{ item.code }}">
+    <div>
+      <p class="muted">Item code</p>
+      <p class="big code">{{ item.code }}</p>
+      <p>{{ item.name }}</p>
+      <button class="btn ghost no-print" type="button" onclick="window.print()">Print label</button>
+    </div>
+  </div>
+</section>
+{% endif %}
+<form method="post" class="card no-print">
+  {% csrf_token %}
+  <h2>Sale price</h2>
+  <label><span>Name</span><input name="name" required value="{{ item.name }}"></label>
+  <label><span>Unit</span><input name="unit" value="{{ item.unit }}"></label>
+  <label><span>Sale price (₹)</span><input name="sale_price" inputmode="decimal" required value="{{ item.sale_price_paise|input_paise }}"></label>
+  <label class="check"><input type="checkbox" name="generate_code"> Generate QR code</label>
+  <p class="muted">{% if item.code %}Checking this again replaces {{ item.code }}. Leave it off to keep the current code.{% else %}Tick this to create a code and a printable QR.{% endif %}</p>
+  <button class="btn" type="submit">Save item</button>
+</form>
+{% if shop %}
+<form method="post" action="{% url 'item-adjust' item.id %}" class="card no-print">
+  {% csrf_token %}
+  <h2>Correct stock</h2>
+  <input type="hidden" name="shop_id" value="{{ shop.id }}">
+  <label><span>Quantity change</span><input name="quantity_delta" inputmode="numeric" required placeholder="-1 or 2"></label>
+  <label><span>Note</span><input name="note" required placeholder="Broken piece, count correction"></label>
+  <button class="btn" type="submit">Save adjustment</button>
+</form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block body %}
+{% if not shop %}
+<p class="card">Create a shop first.</p>
+{% else %}
+<div class="daynav">
+  <a href="/wallet?date={{ prev }}">Previous</a>
+  <strong>{{ date|pretty }}</strong>
+  <a href="/wallet?date={{ next }}">Next</a>
+</div>
+<section class="balance">
+  <p class="muted">Closing cash</p>
+  <p class="big">{{ wallet.closing_paise|inr }}</p>
+  <div class="split">
+    <span>Open {{ wallet.opening_paise|inr }}</span>
+    <span class="in">In {{ wallet.in_paise|inr }}</span>
+    <span class="out">Out {{ wallet.out_paise|inr }}</span>
+  </div>
+</section>
+<p><a class="btn" href="/wallet/new">Money in / out</a></p>
+{% for entry in wallet.entries %}
+<div class="row">
+  <span>
+    <strong>{{ entry.label }}</strong>
+    <span class="muted">{{ entry.method }}{% if entry.note and entry.category != 'expense' %} · {{ entry.note }}{% endif %}</span>
+  </span>
+  <strong class="{{ 'in' if entry.direction == 'in' else 'out' }}">
+    {{ '+' if entry.direction == 'in' else '−' }}{{ entry.amount_paise|inr }}
+  </strong>
+</div>
+{% else %}
+<p class="empty">No cash movement on this day.</p>
+{% endfor %}
+{% endif %}
+{% endblock %}

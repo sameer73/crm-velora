@@ -1,0 +1,59 @@
+{% extends "books/base.html" %}
+{% load shop_tags %}
+{% block body %}
+{% if not shop %}
+  <section class="card">
+    {% if user.profile.role == "owner" %}
+    <h2>Create your first shop</h2>
+    <p class="muted">Each shop keeps its own stock and cash.</p>
+    <form method="post" action="{% url 'settings-shop' %}">
+      {% csrf_token %}
+      <label><span>Shop name</span><input name="name" required></label>
+      <label><span>Address</span><input name="address"></label>
+      <label><span>Phone</span><input name="phone"></label>
+      <button class="btn" type="submit">Save shop</button>
+    </form>
+    {% else %}
+    <p>Ask the owner to assign you to a shop.</p>
+    {% endif %}
+  </section>
+{% else %}
+  <section class="balance">
+    <p class="muted">Cash in hand</p>
+    <p class="big">{{ summary.closing_paise|inr }}</p>
+    <div class="split">
+      <span class="in">In {{ summary.in_paise|inr }}</span>
+      <span class="out">Out {{ summary.out_paise|inr }}</span>
+    </div>
+    <p class="muted">Opened today at {{ summary.opening_paise|inr }}</p>
+  </section>
+  {% if not summary.has_opening %}
+  <p class="card">Set the cash already in the drawer so today’s balance matches the shop. <a href="{% url 'wallet-new' %}?kind=opening">Add starting cash</a></p>
+  {% endif %}
+  <div class="actions">
+    <a class="action" href="{% url 'sale-new' %}">Counter sale</a>
+    <a class="action" href="{% url 'job-new' %}">Installation</a>
+    <a class="action" href="{% url 'purchase-new' %}">Stock in</a>
+    <a class="action" href="{% url 'wallet-new' %}">Money in / out</a>
+  </div>
+  <h2>Customers still to pay</h2>
+  <p class="muted">Part payments stay here until the rest is collected. Open the bill to record the next payment.</p>
+  {% for bill in summary.unpaid_bills %}
+  <a class="row" href="{% url 'bill' bill.id %}">
+    <span><strong>{{ bill.title }}</strong><span class="muted">{{ bill.subtitle }}</span></span>
+    <strong>Due {{ bill.balance_paise|inr }}</strong>
+  </a>
+  {% empty %}
+  <p class="empty">No open bills.</p>
+  {% endfor %}
+  <h2>Still to pay vendors</h2>
+  {% for purchase in summary.unpaid_purchases %}
+  <a class="row" href="{% url 'purchase' purchase.id %}">
+    <span><strong>{{ purchase.title }}</strong><span class="muted">{{ purchase.subtitle }} · {{ purchase.date|pretty }}</span></span>
+    <strong>{{ purchase.balance_paise|inr }}</strong>
+  </a>
+  {% empty %}
+  <p class="empty">No open vendor bills.</p>
+  {% endfor %}
+{% endif %}
+{% endblock %}
